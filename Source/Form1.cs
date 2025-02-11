@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibreHardwareMonitor.Hardware;
 using System.IO.Ports;
-using System.Management;
 using RJCodeAdvance.RJControls;
 using System.Diagnostics;
 
@@ -22,6 +18,7 @@ namespace PcMonitor
         private bool isCommunicationActive = false;
         private Computer computer;
         private Timer timer1;
+
 
         public Form1()
         {
@@ -41,6 +38,7 @@ namespace PcMonitor
             {
                 IsCpuEnabled = true,
                 IsGpuEnabled = true,
+                IsMemoryEnabled = true,
             };
             computer.Open();
         }
@@ -62,13 +60,11 @@ namespace PcMonitor
             {
                 // Toggle ON: Start communication
                 StartCommunication();
-                MessageBox.Show("Communication Started!", "Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
                 // Toggle OFF: Stop communication
                 StopCommunication();
-                MessageBox.Show("Communication Stopped!", "Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -98,6 +94,9 @@ namespace PcMonitor
             catch (Exception ex)
             {
                 MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Prevent UI updates
+                btnToggleCommunication.Checked = false;
+                return;
             }
         }
 
@@ -149,12 +148,14 @@ namespace PcMonitor
                 else if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd)
                 {
                     gpuTemp = GetSensorValue(hardware, SensorType.Temperature, "Core");
-                    gpuLoad = GetSensorValue(hardware, SensorType.Load, "GPU Video Engine");
+                    gpuLoad = GetSensorValue(hardware, SensorType.Load, "GPU Core");
                     gpuFan = GetSensorValue(hardware, SensorType.Fan, "GPU");
                 }
+                else if (hardware.HardwareType == HardwareType.Memory)
+                {
+                    ramUsage = GetSensorValue(hardware, SensorType.Load, "Memory");
+                }
             }
-
-            ramUsage = GetRamUsagePercentage();
 
             // Build data string based on checked nodes in TreeView
             StringBuilder dataBuilder = new StringBuilder();
@@ -202,20 +203,6 @@ namespace PcMonitor
                 }
             }
             return 0;
-        }
-
-        private float GetRamUsagePercentage()
-        {
-            // calculate and return RAM usages
-            float totalMemory = 0;
-            float availableMemory = 0;
-            var searcher = new ManagementObjectSearcher("SELECT TotalVisibleMemorySize, FreePhysicalMemory FROM Win32_OperatingSystem");
-            foreach (ManagementObject obj in searcher.Get())
-            {
-                totalMemory = float.Parse(obj["TotalVisibleMemorySize"].ToString()) / 1024;
-                availableMemory = float.Parse(obj["FreePhysicalMemory"].ToString()) / 1024;
-            }
-            return ((totalMemory - availableMemory) / totalMemory) * 100;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)

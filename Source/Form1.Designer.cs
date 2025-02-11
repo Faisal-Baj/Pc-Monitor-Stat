@@ -40,6 +40,7 @@
             this.treeViewStats = new System.Windows.Forms.TreeView();
             this.label1 = new System.Windows.Forms.Label();
             this.lblConnectionStatus = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.TrayMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -124,12 +125,18 @@
             this.lblConnectionStatus.ForeColor = System.Drawing.Color.Red;
             this.lblConnectionStatus.Name = "lblConnectionStatus";
             // 
+            // label2
+            // 
+            resources.ApplyResources(this.label2, "label2");
+            this.label2.Name = "label2";
+            // 
             // Form1
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.GrayText;
             this.BackgroundImage = global::PcMonitor.Properties.Resources.icon1;
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.lblConnectionStatus);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.treeViewStats);
@@ -158,6 +165,7 @@
         private System.Windows.Forms.TreeView treeViewStats;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblConnectionStatus;
+        private System.Windows.Forms.Label label2;
     }
 }
 
